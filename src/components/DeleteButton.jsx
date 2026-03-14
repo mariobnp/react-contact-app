@@ -25,9 +25,4 @@ function DeleteButton(props) {
   );
 }
 
-// DeleteButton.propTypes = {
-//   id: PropTypes.number.isRequired,
-//   onDelete: PropTypes.func.isRequired,
-// }
-
 export default DeleteButton;

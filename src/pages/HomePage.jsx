@@ -1,37 +1,60 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import ContactList from "../components/ContactList";
 import SearchBar from "../components/SearchBar";
-import { deleteContact, getContacts } from "../utils/data";
+import { deleteContact, getContacts } from "../utils/api";
 
-function HomePage() {
-  //   const [contacts, setContacts] = useState(getContacts());
-  //   const [keyword, setKeyword] = useState("");
+class HomePage extends React.Component {
+  constructor(props) {
+    super(props);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const keyword = searchParams.get("keyword") || "";
+    this.state = {
+      contacts: [],
+      keyword: props.defaultKeyword || "",
+    };
 
-  function onDeleteHandler(id) {
-    deleteContact(id);
+    this.onDeleteHandler = this.onDeleteHandler.bind(this);
+    this.onKeywordChangeHandler = this.onKeywordChangeHandler.bind(this);
   }
 
-  function onKeywordChangeHandler(keyword) {
-    setSearchParams({keyword})
+  async onDeleteHandler(id) {
+    await deleteContact(id);
+
+    const { data } = await getContacts();
+
+    this.setState(() => {
+      return {
+        contacts: data,
+      };
+    });
   }
 
-  const contacts = getContacts();
+  onKeywordChangeHandler(keyword) {
+    this.setState(() => {
+      return {
+        keyword,
+      };
+    });
+  }
 
-  const filteredContacts = contacts.filter((contact) =>
-    contact.name.toLowerCase().includes(keyword.toLowerCase()),
-  );
+  async componentDidMount() {
+    const { data } = await getContacts();
 
-  return (
-    <section>
-      <h2>Daftar Kontak</h2>
-      <SearchBar keyword={keyword} keywordChange={onKeywordChangeHandler} />
-      <ContactList contacts={filteredContacts} onDelete={onDeleteHandler} />
-    </section>
-  );
+    this.setState(() => {
+      return {
+        contacts: data,
+      };
+    });
+  }
+
+  render() {
+    return (
+      <section>
+        <h2>Daftar Kontak</h2>
+        <SearchBar keyword={this.state.keyword} keywordChange={this.onKeywordChangeHandler} />
+        <ContactList contacts={this.state.contacts} onDelete={this.onDeleteHandler} />
+      </section>
+    );
+  }
 }
 
 export default HomePage;
